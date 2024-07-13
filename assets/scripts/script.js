@@ -39,7 +39,9 @@ let closeAlertButton = document.getElementById('close-alert');
 
 window.onload = function () {
     showCustomAlert();  // Show custom alert
+}
 
+function initializeGame() {
     board = document.getElementById("board");
     board.height = boardHeight;
     board.width = boardWidth;
@@ -53,7 +55,7 @@ window.onload = function () {
 
     // Create initial ball
     createBall();
-    setInterval(createBall, 2000); // Add a new ball every 2 seconds
+    setInterval(createBall, 1500); // Add a new ball every 2 seconds
 }
 
 function update() {
@@ -144,7 +146,7 @@ function showGameOver() {
     gameOver = true;
     gameOverScreen.style.display = 'flex';
     finalScoreDisplay.innerText = 'Final Score: ' + score;
-    finalScoreDisplay.style.color = 'green'; // Change font color to green
+    finalScoreDisplay.style.color = 'black'; // Change font color to green
 }
 
 function updateGirlImage() {
@@ -166,11 +168,13 @@ function showCustomAlert() {
 
 closeAlertButton.onclick = function() {
     customAlert.style.display = "none";
+    initializeGame(); // Initialize game only when the custom alert is closed
 }
 
 window.onclick = function(event) {
     if (event.target == customAlert) {
         customAlert.style.display = "none";
+        initializeGame(); // Initialize game only when the custom alert is closed
     }
 }
 

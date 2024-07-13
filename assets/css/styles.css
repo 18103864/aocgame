@@ -27,6 +27,8 @@ body, html {
     border-left: 5px solid #ff006b;
     border-right: 5px solid #ff006b;
     border-bottom: 5px solid #ff006b;
+    width: 500px;
+    height: 700px;
 }
 
 #game-over-screen {
@@ -37,14 +39,15 @@ body, html {
     top: 50%;
     left: 40%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(255, 0, 107, 0.8);
     padding: 20px;
     color: white;
     border-radius: 10px;
+    border: 1px solid white;
 }
 
 #game-over-screen h2 {
-    color: white;
+    color: black;
     font-size: 36px;
     margin-bottom: 20px;
 }
@@ -55,9 +58,14 @@ body, html {
     cursor: pointer;
     background-color: #4CAF50;
     border: none;
-    color: white;
+    color: black;
     font-size: 16px;
     border-radius: 5px;
+}
+
+#retry-button:hover {
+    color: #ff006b;
+    background-color: white;
 }
 
 .photos {
@@ -99,6 +107,10 @@ body, html {
     font-weight: bold;
 }
 
+.navbar-logo:hover {
+    color: #ff006b;
+}
+
 .navbar-menu {
     list-style: none;
     display: flex;
@@ -114,6 +126,10 @@ body, html {
     color: #fff;
     text-decoration: none;
     font-size: 18px;
+}
+
+.navbar-menu li a:hover {
+    color: #ff006b;
 }
 
 /* Custom Alert Modal Styles */
