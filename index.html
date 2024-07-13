@@ -7,11 +7,27 @@
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-    <div class="game-container">
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-logo" target="_blank">SEXYAOC</a>
+            <ul class="navbar-menu">
+                <li><a href="#" target="_blank">Twitter</a></li>
+                <li><a href="#" target="_blank">Telegram</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="game-container" style="display: flex;">
         <canvas id="board"></canvas>
+        <div class="photos">
+            <img id="girl-image" src="assets/images/girl1.png" alt="Girl Image" height: auto;">
+            <div id="score" style="font-size: 20px;">Score: 0</div>
+        </div>
     </div>
-       <!-- Game over screen -->
-       <div id="game-over-screen">
+    <!-- <div class="photos">
+        <img id="girl-image" src="assets/images/girl1.png" alt="">
+    </div> -->
+    <!-- Game over screen -->
+    <div id="game-over-screen" style="display: none;">
         <h2>Game Over</h2>
         <p id="final-score">Final Score: 0</p>
         <button id="retry-button">Retry</button>
