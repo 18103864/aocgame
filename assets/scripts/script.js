@@ -1,134 +1,146 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const gameArea = document.querySelector('.game-area');
-    const basket = document.getElementById('basket');
-    const scoreDisplay = document.getElementById('score');
-    const gameOverScreen = document.getElementById('game-over-screen');
-    const finalScoreDisplay = document.getElementById('final-score');
-    const retryButton = document.getElementById('retry-button');
+let board;
+let boardWidth = 500;
+let boardHeight = 700;
+let context;
 
-    let scores = 0;
-    let gameRunning = true;
-    let beerInterval;
-    let beers = [];
+// Player
+let playerWidth = 80;
+let playerHeight = 10;
+let playerVelocityX = 10;
 
-    // Game area dimensions
-    const gameAreaWidth = gameArea.offsetWidth;
-    const gameAreaHeight = gameArea.offsetHeight;
-    const basketWidth = basket.offsetWidth;
+let player = {
+    x: boardWidth / 2 - playerWidth / 2,
+    y: boardHeight - playerHeight - 5,
+    width: playerWidth,
+    height: playerHeight,
+    velocityX: playerVelocityX
+}
 
-    // Move basket with mouse movement
-    gameArea.addEventListener('mousemove', (e) => {
-        if (!gameRunning) return; // Disable basket movement if game is not running
+// Balls
+let ballWidth = 10;
+let ballHeight = 10;
+let ballVelocityY = 2;
 
-        const x = e.clientX - gameArea.getBoundingClientRect().left;
-        const basketHalfWidth = basketWidth / 2;
+let balls = [];
 
-        let basketX = x - basketHalfWidth;
+let score = 0;
+let gameOver = false;
 
-        if (basketX < 0) {
-            basketX = 0;
-        }
+// DOM Elements
+let gameOverScreen = document.getElementById('game-over-screen');
+let finalScoreDisplay = document.getElementById('final-score');
+let retryButton = document.getElementById('retry-button');
+let scoreDisplay = document.getElementById('score');
 
-        if (basketX > gameAreaWidth - basketWidth) {
-            basketX = gameAreaWidth - basketWidth;
-        }
+window.onload = function () {
+    board = document.getElementById("board");
+    board.height = boardHeight;
+    board.width = boardWidth;
+    context = board.getContext("2d");
 
-        basket.style.left = basketX + 'px';
-    });
+    context.fillStyle = "skyblue";
+    context.fillRect(player.x, player.y, player.width, player.height);
 
-    // Function to create a new beer
-    function createBeer() {
-        const beer = document.createElement('div');
-        beer.classList.add('beer');
-        beer.style.left = Math.random() * (gameAreaWidth - 40) + 'px';
-        gameArea.appendChild(beer);
+    requestAnimationFrame(update);
+    document.addEventListener("mousemove", movePlayer);
 
-        animateBeer(beer);
-        beers.push(beer); // Add beer to array
+    // Create initial ball
+    createBall();
+    setInterval(createBall, 2000); // Add a new ball every 2 seconds
+}
+
+function update() {
+    requestAnimationFrame(update);
+    if (gameOver) {
+        return;
     }
+    context.clearRect(0, 0, board.width, board.height);
 
-    // Function to animate the beer falling
-    function animateBeer(beer) {
-        let beerTop = 0;
-        const beerSpeed = 2; // Adjust speed as needed
+    // Player
+    context.fillStyle = "lightgreen";
+    context.fillRect(player.x, player.y, player.width, player.height);
 
-        function updateBeer() {
-            if (!gameRunning) return;
+    // Balls
+    context.fillStyle = "white";
+    for (let i = 0; i < balls.length; i++) {
+        let ball = balls[i];
+        ball.y += ball.velocityY;
+        context.fillRect(ball.x, ball.y, ball.width, ball.height);
 
-            beerTop += beerSpeed;
-            beer.style.top = beerTop + 'px';
-
-            // Check if beer is caught
-            if (beerTop > gameAreaHeight - 50 && beerTop < gameAreaHeight) {
-                const basketLeft = basket.offsetLeft;
-                const basketRight = basketLeft + basketWidth;
-                const beerLeft = beer.offsetLeft;
-                const beerRight = beerLeft + beer.offsetWidth;
-
-                if (beerRight > basketLeft && beerLeft < basketRight) {
-                    scores++;
-                    scoreDisplay.innerText = 'Score: ' + scores;
-                    resetBeer(beer);
-                    return; // Exit function if beer is caught
-                }
-            }
-
-            // Check if beer missed
-            if (beerTop >= gameAreaHeight) {
-                gameOver();
-                return; // Exit function if beer is missed
-            }
-
-            requestAnimationFrame(updateBeer);
-        }
-
-        // Start the beer animation
-        requestAnimationFrame(updateBeer);
-    }
-
-    // Function to reset beer position
-    function resetBeer(beer) {
-        beer.remove();
-        beers = beers.filter(b => b !== beer); // Remove beer from array
-
-        // Check if all beers are gone and game is running
-        if (beers.length === 0 && gameRunning) {
-            startGame();
+        if (detectCollision(ball, player)) {
+            balls.splice(i, 1);
+            score += 100;
+            scoreDisplay.innerText = 'Score: ' + score;
+            i--; // Adjust index after removal
+        } else if (ball.y + ball.height >= boardHeight) {
+            showGameOver();
         }
     }
 
-    // Game over function
-    function gameOver() {
-        gameRunning = false;
-        clearInterval(beerInterval); // Clear beer creation interval
-        gameOverScreen.style.display = 'flex'; // Display game over screen
-        finalScoreDisplay.innerText = scores;
+    // Score
+    context.font = "20px sans-serif";
+    context.fillText('Score: ' + score, 10, 25);
+}
+
+function outOfBounds(xPosition) {
+    return (xPosition < 0 || xPosition + playerWidth > boardWidth);
+}
+
+function movePlayer(e) {
+    let mouseX = e.clientX - board.offsetLeft;
+    player.x = mouseX - player.width / 2;
+
+    // Ensure player stays within bounds
+    if (player.x < 0) {
+        player.x = 0;
     }
-
-    // Function to start the game
-    function startGame() {
-        // Clear existing beers
-        beers.forEach(beer => beer.remove());
-        beers = [];
-
-        gameRunning = true;
-        beerInterval = setInterval(() => {
-            if (!gameRunning) {
-                clearInterval(beerInterval);
-                return;
-            }
-            createBeer();
-        }, 1000); // Adjust interval as needed
+    if (player.x + player.width > boardWidth) {
+        player.x = boardWidth - player.width;
     }
+}
 
-    // Retry button event listener
-    retryButton.addEventListener('click', () => {
-        gameOverScreen.style.display = 'none'; // Hide game over screen
-        scores = 0;
-        scoreDisplay.innerText = 'Score: 0';
-        startGame();
-    });
+function detectCollision(a, b) {
+    return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+}
 
-    // Start the game initially
-    startGame();
+function createBall() {
+    let ball = {
+        x: Math.random() * (boardWidth - ballWidth),
+        y: 0,
+        width: ballWidth,
+        height: ballHeight,
+        velocityY: ballVelocityY
+    }
+    balls.push(ball);
+}
+
+function resetGame() {
+    gameOver = false;
+    player = {
+        x: boardWidth / 2 - playerWidth / 2,
+        y: boardHeight - playerHeight - 5,
+        width: playerWidth,
+        height: playerHeight,
+        velocityX: playerVelocityX
+    }
+    balls = [];
+    score = 0;
+    scoreDisplay.innerText = 'Score: 0';
+    createBall();
+}
+
+function showGameOver() {
+    gameOver = true;
+    gameOverScreen.style.display = 'flex';
+    finalScoreDisplay.innerText = 'Final Score: ' + score;
+    finalScoreDisplay.style.color = 'green'; // Change font color to green
+}
+
+
+retryButton.addEventListener('click', () => {
+    gameOverScreen.style.display = 'none';
+    resetGame();
 });
